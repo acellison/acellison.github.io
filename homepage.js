@@ -15,32 +15,13 @@ function main() {
     return;
   }
 
-  const fractals = {
-    rk4: 'vec2 fractal(vec2 z, vec2 c) { return cmul(cmul(z,z),cmul(z,z))/24.0 + cmul(cmul(z,z),z)/6.0 + cmul(z,z)/2.0 + z + c; }',
-    rk3: 'vec2 fractal(vec2 z, vec2 c) { return cmul(cmul(z,z),z)/6.0 + cmul(z,z)/2.0 + z + c; }',
-    rk2: 'vec2 fractal(vec2 z, vec2 c) { return cmul(z,z)/2.0 + z + c; }',
-    rk1: 'vec2 fractal(vec2 z, vec2 c) { return z + c; }',
-    mandelbrot: 'vec2 fractal(vec2 z, vec2 c) { return cmul(z,z) + c; }',
-    rk3twist: 'vec2 fractal(vec2 z, vec2 c) { return 3.0*cinv(z) + cmul(cmul(z,z),z)/6.0 + cmul(z,z)/2.0 + z + c; }',
-  };
-
-  // Set up the fractal type and precision.
-  // Can only be changed with a recompilation of the shaders
-  const fractal = fractals.rk3twist;
-  const precision = 'highp'
-
-  // Set up the fractal rendering parameters.
-  // Can be changed on the fly without recompiling the shaders
-  const escapetol = 1000.0;
-  const maxiter = 11;
-  const colorByIndex = true;
-  const renderJuliaSet = true;
-  const julia_xy = [1.0, 2.0];
-
   // Vertex shader program
   const vsSource = vertexShaderString();
 
   // Fragment shader program
+//  const fractal = 'cmul(cmul(z, z),z) - 0.5 * cmul(z, cmul(c, c)) + c';
+  const fractal = 'cmul(z, z) + c';
+  const precision = 'highp'
   const fsSource = fragmentShaderString(fractal, precision)
 
   // Initialize a shader program; this is where all the lighting
@@ -51,11 +32,10 @@ function main() {
   gl.useProgram(shaderProgram);
 
   // Set fragment uniforms
+  const escapetol = 4.0;
+  const maxiter = 30;
   gl.uniform1f(gl.getUniformLocation(shaderProgram, 'uEscapeTol'), escapetol);
   gl.uniform1i(gl.getUniformLocation(shaderProgram, 'uMaxIter'), maxiter);
-  gl.uniform1i(gl.getUniformLocation(shaderProgram, 'uColorByIndex'), colorByIndex);
-  gl.uniform1i(gl.getUniformLocation(shaderProgram, 'uRenderJuliaSet'), renderJuliaSet);
-  gl.uniform2fv(gl.getUniformLocation(shaderProgram, 'uJuliaXY'), julia_xy);
 
   // Set the palette
   const paletteTex = createTexture(gl);
@@ -80,50 +60,37 @@ function main() {
 }
 
 /**
- * WebGL fragment shader.  fractal(z,c) is the fractal implementation
+ * WebGL fragment shader.  func(z,c) is the fractal implementation
  * and escapetol determines when to break out of the loop
  */
-function fragmentShaderString(fractal, precision) {
+function fragmentShaderString(func, precision) {
   return `
     precision ` + precision +  ` float;
 
     uniform int uMaxIter;
     uniform float uEscapeTol;
     uniform sampler2D uPalette;
-    uniform bool uColorByIndex;
-    uniform bool uRenderJuliaSet;
-    uniform vec2 uJuliaXY;
     varying vec2 vPosition;
 
-    #define cabs(a) ((a).x * (a).x + (a).y * (a).y)
-    #define conj(a) (vec2((a).x, -(a).y))
-    #define cinv(a) (conj(a)/cabs(a))
     #define cmul(a,b) (vec2((a).x * (b).x - (a).y * (b).y, (a).x * (b).y + (a).y * (b).x))
 
-    ` + fractal + `
-
-    float colormap(float c) {
-      return pow(c,1.0/8.0);
-    }
-
     void main() {
-      vec2 z = vPosition;
-      vec2 c = uRenderJuliaSet ? uJuliaXY : vPosition;
+      vec2 c = vPosition;
+
       int iter = 0;
+      vec2 z = c;
       for (int i=0; i<200; i++) {
-        z = fractal(z, c);
+        vec2 w = ` + func + `;
+
+        if ((w.x * w.x + w.y * w.y) > uEscapeTol) break;
+        z.x = w.x;
+        z.y = w.y;
 
         iter += 1;
-        if (cabs(z) >= uEscapeTol || iter >= uMaxIter) break;
+        if (iter >= uMaxIter) break;
       }
 
-      float index = 0.0;
-      if (uColorByIndex) {
-        index = iter >= uMaxIter ? 0.0 : float(iter)/float(uMaxIter);
-      } else {
-        float color = cabs(z)/uEscapeTol;
-        index = color >= 1.0 ? 0.0 : colormap(color);
-      }
+      float index = (iter >= uMaxIter ? 0.0 : float(iter))/float(uMaxIter);
       gl_FragColor = texture2D(uPalette, vec2(index, 0.0));
     }  `;
 }
@@ -355,6 +322,7 @@ function createTexture(gl) {
   const palettes = {
     ugly: [0x303832, 0x74A37A, 0xD9F3E5, 0xD8BE91, 0xD8BE91, 0x9F4E43],
     classic: [0x212734, 0x6587B4, 0x69B6CD, 0xC3DFE9, 0xF8F0ED],
+//    victorian: [0x1c4053, 0x549499, 0xa7c7b7, 0x8b72c2, 0x6e5785, 0x413452, 0xc75672, 0xf96b69, 0xf5f1c9],
     victorian: [0x1c2031, 0x204457, 0x549499, 0xa7c7b7, 0x8b72c2, 0x6e5785, 0x413452, 0xc75672, 0xf96b69, 0xf5f1c9],
   }
   const hex_colors = palettes.victorian;
@@ -461,13 +429,12 @@ function addInteractions(gl, camera, draw) {
   window.addEventListener('resize', draw, true);
 
   // Defaults for camera location
-  const drag_speed = 0.001;
-  const defaults = {
-    zoom: 1.0,
-    center: [-1.0, 0.0],
-    angle: 0.0,
-  };
-  setState(defaults.zoom, defaults.center, defaults.angle, false)
+  const default_camera_angle = 0.0;
+  const default_camera_zoom = -5.0;
+  const default_camera_center = [-0.916, 0.3048];
+  camera.setAngle(default_camera_angle);
+  camera.setZoom(default_camera_zoom);
+  camera.setCenter(default_camera_center[0], default_camera_center[1]);
 
   // target elements with the "draggable" class
   interact('#glcanvas')
@@ -499,24 +466,8 @@ function addInteractions(gl, camera, draw) {
       maxPerElement: 1,
     })
 
-  // Hide the name overlay when the user interacts with the canvas
-  let nameHidden = false;
-  function hideNameOverlay() {
-    if (!nameHidden) {
-      nameHidden = true;
-      const nameOverlay = document.getElementById("nameOverlay");
-      nameOverlay.classList.add("fade");
-      setTimeout(function() {
-        nameOverlay.style.display = "none";
-      }, 300);
-    }
-  };
-
   // Drag to move
   function dragMoveListener(event, dodraw=true) {
-    // Hide the name overlay upon interaction
-    hideNameOverlay();
-
     // rotate the increments
     const vec = vec2.fromValues(event.dx, event.dy)
     vec2.rotate(vec, vec, vec2.fromValues(0.0, 0.0), -camera.angle);
@@ -524,6 +475,7 @@ function addInteractions(gl, camera, draw) {
     const dy = vec[1];
 
     // update the center locations
+    const drag_speed = 0.001;
     const scale = drag_speed * Math.pow(2.0, camera.zoom)
     const center_x = camera.center[0] - scale * dx;
     const center_y = camera.center[1] + scale * dy;
@@ -545,9 +497,6 @@ function addInteractions(gl, camera, draw) {
 
   // Add scroll event listener
   function zoomListener(event, dodraw=true) {
-    // Hide the name overlay upon interaction
-    hideNameOverlay();
-
     // prevent dragging the canvas up/down along with the zoom
     if ('preventDefault' in event) event.preventDefault();
 
@@ -568,10 +517,9 @@ function addInteractions(gl, camera, draw) {
   }
 
   // Set state helper
-  function setState(zoom, center, angle, dodraw=true) {
+  function setState(zoom, cx, cy, dodraw=true) {
     camera.setZoom(zoom);
-    camera.setCenter(center[0], center[1]);
-    camera.setAngle(angle);
+    camera.setCenter(cx, cy);
 
     if (dodraw) draw();
   }
@@ -580,22 +528,22 @@ function addInteractions(gl, camera, draw) {
   const menu_home = document.getElementById('menu-home');
   menu_home.onclick = function() {
     console.log('home');
-    setState(defaults.zoom, defaults.center, defaults.angle);
+    setState(-5.0, -0.916, 0.3048);
   }
   const menu_about = document.getElementById('menu-about');
   menu_about.onclick = function() {
     console.log('about');
-    setState(-6.06, [-0.75379, -0.11206], 0.0);
+    setState(-6.06, -0.75379, -0.11206);
   }
   const menu_info = document.getElementById('menu-info');
   menu_info.onclick = function() {
     console.log('info');
-    setState(-6.06, [0.34212, 0.52298], 0.0);
+    setState(-6.06, 0.34212, 0.52298);
   }
   const menu_contact = document.getElementById('menu-contact');
   menu_contact.onclick = function() {
     console.log('contact');
-    setState(-2.4, [-1.98619, -0.00031829], 0.0);
+    setState(-12.89, -1.98619, -0.00031829);
   }
 }
 

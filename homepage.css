@@ -14,11 +14,6 @@ canvas {
   font-family: Arial;
   font-size: 28px;
   color: #F8F0ED;
-  opacity: 1;
-  transition: opacity 0.3s;
-}
-#nameOverlay.fade {
-  opacity: 0;
 }
 
 .unselectable {
@@ -159,3 +154,4 @@ canvas {
 #menuToggle input:checked ~ ul {
   transform: none;
 }
+
