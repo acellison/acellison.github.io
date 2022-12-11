@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>aelli</title>
+    <link rel="stylesheet" href="./homepage.css" type="text/css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"
+      integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ=="
+      crossorigin="anonymous" defer>
+    </script>
+    <script type="module" src="./homepage.js" defer></script>
+  </head>
+
+  <body>
+    <canvas id="glcanvas" class="unselectable"></canvas>
+    <div id="nameOverlay" class="unselectable">abe ellison</div>
+
+    <!--    Made by Erik Terwan    -->
+    <!--   24th of November 2015   -->
+    <!--        MIT License        -->
+    <nav role="navigation">
+      <div id="menuToggle" class="unselectable">
+        <!--
+        A fake / hidden checkbox is used as click reciever,
+        so you can use the :checked selector on it.
+        -->
+        <input type="checkbox" />
+
+        <!--
+        Some spans to act as a hamburger.
+
+        They are acting like a real hamburger,
+        not that McDonalds stuff.
+        -->
+        <span></span>
+        <span></span>
+        <span></span>
+
+        <!--
+        Too bad the menu has to be inside of the button
+        but hey, it's pure CSS magic.
+        -->
+        <ul id="menu">
+          <a href="#" id="menu-home"><li>home</li></a>
+          <a href="#" id="menu-about"><li>about</li></a>
+          <a href="#" id="menu-info"><li>info</li></a>
+          <a href="#" id="menu-contact"><li>contact</li></a>
+        </ul>
+      </div>
+    </nav>
+
+  </body>
+</html>
