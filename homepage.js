@@ -516,34 +516,4 @@ function addInteractions(gl, camera, draw) {
     if (dodraw) draw();
   }
 
-  // Set state helper
-  function setState(zoom, cx, cy, dodraw=true) {
-    camera.setZoom(zoom);
-    camera.setCenter(cx, cy);
-
-    if (dodraw) draw();
-  }
-
-  // Add the menu items
-  const menu_home = document.getElementById('menu-home');
-  menu_home.onclick = function() {
-    console.log('home');
-    setState(-5.0, -0.916, 0.3048);
-  }
-  const menu_about = document.getElementById('menu-about');
-  menu_about.onclick = function() {
-    console.log('about');
-    setState(-6.06, -0.75379, -0.11206);
-  }
-  const menu_info = document.getElementById('menu-info');
-  menu_info.onclick = function() {
-    console.log('info');
-    setState(-6.06, 0.34212, 0.52298);
-  }
-  const menu_contact = document.getElementById('menu-contact');
-  menu_contact.onclick = function() {
-    console.log('contact');
-    setState(-12.89, -1.98619, -0.00031829);
-  }
 }
-

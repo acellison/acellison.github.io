@@ -125,13 +125,14 @@ canvas {
  */
 #menu {
   position: absolute;
-  width: 130px;
+  width: 160px;
   margin: -100px 0 0 -50px;
   padding: 50px;
   padding-top: 110px;
   padding-bottom: 20px;
   
   background: #F8F8F4;
+  border-bottom-right-radius: 16px;
   list-style-type: none;
   font-family: Arial;
   -webkit-font-smoothing: antialiased;
@@ -154,4 +155,3 @@ canvas {
 #menuToggle input:checked ~ ul {
   transform: none;
 }
-
