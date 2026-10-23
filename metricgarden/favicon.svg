@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect width="64" height="64" rx="12" fill="#1b1b1b"/>
+  <g fill="none" stroke="#414141" stroke-width="2.2" stroke-linecap="round">
+    <path d="M29 28 13 13M35 27 51 12M27 34 12 43M37 34 52 44M32 39v13"/>
+  </g>
+  <g fill="#333" stroke="#4c8db4" stroke-width="2">
+    <circle cx="10.5" cy="10.5" r="7"/>
+    <circle cx="53.5" cy="9.5" r="7"/>
+    <circle cx="9.5" cy="46" r="7"/>
+    <circle cx="54.5" cy="47" r="7"/>
+    <circle cx="32" cy="57" r="6"/>
+    <circle cx="32" cy="31" r="11"/>
+  </g>
+  <g fill="#aaa" font-family="Arial, sans-serif" text-anchor="middle" dominant-baseline="central">
+    <text x="10.5" y="10.8" font-size="8">1</text>
+    <text x="53.5" y="9.8" font-size="8">1</text>
+    <text x="9.5" y="46.3" font-size="8">1</text>
+    <text x="54.5" y="47.3" font-size="8">1</text>
+    <text x="32" y="57.2" font-size="7">1</text>
+    <text x="32" y="31.4" font-size="12">5</text>
+  </g>
+</svg>
